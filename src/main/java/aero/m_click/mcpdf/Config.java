@@ -31,4 +31,5 @@ public class Config
     public String stampFilename;
     public String backgroundFilename;
     public boolean flatten;
+    public boolean merge;
 }

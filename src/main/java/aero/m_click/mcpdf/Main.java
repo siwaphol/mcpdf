@@ -24,19 +24,18 @@
 
 package aero.m_click.mcpdf;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.util.HashMap;
+import java.util.List;
 
+import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfImportedPage;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfStamper;
-import com.itextpdf.text.pdf.XfdfReader;
+import com.itextpdf.text.pdf.*;
 
 public class Main
 {
+    public static final String DEST = "template/finalTax.pdf";
+
     public static void main(String[] args)
     {
         try {
@@ -81,7 +80,10 @@ public class Main
                 }
             } else if ("flatten".equals(args[i])) {
                 config.flatten = true;
-            } else {
+            } else if ("merge".equals(args[i])){
+                config.merge = true;
+            }
+            else {
                 throw new RuntimeException("Unknown operation: " + args[i]);
             }
         }
@@ -91,19 +93,41 @@ public class Main
     public static void execute(Config config)
         throws IOException, DocumentException
     {
-        PdfReader reader = new PdfReader(config.pdfInputStream);
-        PdfStamper stamper = new PdfStamper(reader, config.pdfOutputStream, '\0');
-        if (!config.stampFilename.isEmpty()) {
-            stampBackground(reader, stamper, config.stampFilename, true);
+        if (config.merge){
+            File file = new File(DEST);
+            file.getParentFile().mkdirs();
+            File filled_forms_folder = new File("template/filled_forms");
+
+            File[] listOfFiles = filled_forms_folder.listFiles();
+            if (listOfFiles!=null){
+                Document document = new Document();
+                PdfCopy copy = new PdfCopy(document, new FileOutputStream(DEST));
+                document.open();
+                for (int i = 0; i < listOfFiles.length; i++) {
+                    if (listOfFiles[i].isFile()) {
+                        PdfReader copied_file = new PdfReader(new FileInputStream(listOfFiles[i].getPath()));
+                        copy.addDocument(copied_file);
+                    }
+                }
+                document.close();
+            }else{
+                throw new RuntimeException("No files in filled_forms directory.");
+            }
+        }else{
+            PdfReader reader = new PdfReader(config.pdfInputStream);
+            PdfStamper stamper = new PdfStamper(reader, config.pdfOutputStream, '\0');
+            if (!config.stampFilename.isEmpty()) {
+                stampBackground(reader, stamper, config.stampFilename, true);
+            }
+            if (!config.backgroundFilename.isEmpty()) {
+                stampBackground(reader, stamper, config.backgroundFilename, false);
+            }
+            if (config.formInputStream != null) {
+                new Main().customSetFields(new XfdfReader(config.formInputStream), stamper);
+            }
+            stamper.setFormFlattening(config.flatten);
+            stamper.close();
         }
-        if (!config.backgroundFilename.isEmpty()) {
-            stampBackground(reader, stamper, config.backgroundFilename, false);
-        }
-        if (config.formInputStream != null) {
-            stamper.getAcroFields().setFields(new XfdfReader(config.formInputStream));
-        }
-        stamper.setFormFlattening(config.flatten);
-        stamper.close();
     }
 
     public static void stampBackground(PdfReader reader, PdfStamper stamper, String signature, boolean isStamp)
@@ -117,5 +141,17 @@ public class Main
             canvas.addTemplate(page, 0, 0);
         }
         stamper.getWriter().freeReader(r);
+    }
+
+    public void customSetFields(XfdfReader xfdf, PdfStamper stamper) throws IOException, DocumentException {
+        HashMap<String, String> fd = xfdf.getFields();
+        for (String f: fd.keySet()) {
+            String v = xfdf.getFieldValue(f);
+            if (v != null)
+                stamper.getAcroFields().setField(f, v, true);
+            List<String> l = xfdf.getListValues(f);
+            if (l != null)
+                stamper.getAcroFields().setListSelection(v, l.toArray(new String[l.size()]));
+        }
     }
 }

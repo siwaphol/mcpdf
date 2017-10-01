@@ -76,6 +76,13 @@
       </plugin>
     </plugins>
   </build>
+  <distributionManagement>
+    <repository>
+      <id>iText Repository</id>
+      <name>iText Repository-releases</name>
+      <url>https://repo.itextsupport.com/releases</url>
+    </repository>
+  </distributionManagement>
   <dependencies>
     <dependency>
       <groupId>org.bouncycastle</groupId>
@@ -87,10 +94,29 @@
       <artifactId>bcprov-jdk15on</artifactId>
       <version>1.52</version>
     </dependency>
-    <dependency>
-      <groupId>com.itextpdf</groupId>
-      <artifactId>itextpdf</artifactId>
-      <version>5.5.5</version>
-    </dependency>
+
+      <dependency>
+          <groupId>com.itextpdf</groupId>
+          <artifactId>itextpdf</artifactId>
+          <version>5.5.12</version>
+      </dependency>
+
+      <dependency>
+          <groupId>com.itextpdf</groupId>
+          <artifactId>itext-pdfa</artifactId>
+          <version>5.5.12</version>
+      </dependency>
+
+      <dependency>
+          <groupId>com.itextpdf</groupId>
+          <artifactId>itext-xtra</artifactId>
+          <version>5.5.12</version>
+      </dependency>
+
+      <dependency>
+          <groupId>com.itextpdf.tool</groupId>
+          <artifactId>xmlworker</artifactId>
+          <version>5.5.12</version>
+      </dependency>
   </dependencies>
 </project>
