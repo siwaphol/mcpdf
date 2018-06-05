@@ -35,7 +35,7 @@ import com.itextpdf.text.pdf.*;
 
 public class Main
 {
-    public static final String DEST = "template/finalTax.pdf";
+    public static final String DEST = "/finalTax.pdf";
 
     public static void main(String[] args)
     {
@@ -43,6 +43,7 @@ public class Main
             execute(parseArgs(args));
         } catch (Exception e) {
             System.err.println(e);
+            e.printStackTrace();
             System.err.println("See README for more information.");
             System.exit(1);
         }
@@ -63,6 +64,7 @@ public class Main
         config.flatten = false;
         config.mergePath = "";
         for (int i = 1; i < args.length; i++) {
+
             if ("stamp".equals(args[i])) {
                 i++;
                 config.stampFilename = args[i];
@@ -84,7 +86,8 @@ public class Main
                 config.flatten = true;
             } else if ("merge".equals(args[i])){
                 config.merge = true;
-                config.mergePath = System.getProperty("mergePath");
+                i++;
+                config.mergePath = args[i];
             }
             else {
                 throw new RuntimeException("Unknown operation: " + args[i]);
@@ -97,15 +100,15 @@ public class Main
         throws IOException, DocumentException
     {
         if (config.merge){
-            File file = new File(DEST);
+            File file = new File(config.mergePath + DEST);
             file.getParentFile().mkdirs();
-            File filled_forms_folder = new File(config.mergePath);
+            File filled_forms_folder = new File(config.mergePath + "/filled_forms");
 
             File[] listOfFiles = filled_forms_folder.listFiles();
             if (listOfFiles!=null){
                 Arrays.sort(listOfFiles);
                 Document document = new Document();
-                PdfCopy copy = new PdfCopy(document, new FileOutputStream(DEST));
+                PdfCopy copy = new PdfCopy(document, new FileOutputStream(config.mergePath + DEST));
                 document.open();
                 for (int i = 0; i < listOfFiles.length; i++) {
                     if (listOfFiles[i].isFile()) {
