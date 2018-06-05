@@ -60,6 +60,7 @@ public class Main
         config.stampFilename = "";
         config.backgroundFilename = "";
         config.flatten = false;
+        config.mergePath = "";
         for (int i = 1; i < args.length; i++) {
             if ("stamp".equals(args[i])) {
                 i++;
@@ -82,6 +83,8 @@ public class Main
                 config.flatten = true;
             } else if ("merge".equals(args[i])){
                 config.merge = true;
+                i++;
+                config.mergePath = args[i];
             }
             else {
                 throw new RuntimeException("Unknown operation: " + args[i]);
@@ -96,7 +99,7 @@ public class Main
         if (config.merge){
             File file = new File(DEST);
             file.getParentFile().mkdirs();
-            File filled_forms_folder = new File("template/filled_forms");
+            File filled_forms_folder = new File(config.mergePath);
 
             File[] listOfFiles = filled_forms_folder.listFiles();
             if (listOfFiles!=null){

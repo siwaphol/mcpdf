@@ -32,4 +32,5 @@ public class Config
     public String backgroundFilename;
     public boolean flatten;
     public boolean merge;
+    public String mergePath;
 }
