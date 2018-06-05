@@ -84,8 +84,7 @@ public class Main
                 config.flatten = true;
             } else if ("merge".equals(args[i])){
                 config.merge = true;
-                i++;
-                config.mergePath = args[i];
+                config.mergePath = System.getProperty("mergePath");
             }
             else {
                 throw new RuntimeException("Unknown operation: " + args[i]);
