@@ -25,6 +25,7 @@
 package aero.m_click.mcpdf;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -103,6 +104,7 @@ public class Main
 
             File[] listOfFiles = filled_forms_folder.listFiles();
             if (listOfFiles!=null){
+                Arrays.sort(listOfFiles);
                 Document document = new Document();
                 PdfCopy copy = new PdfCopy(document, new FileOutputStream(DEST));
                 document.open();
